@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Clara Around the World</title>
+
+    <link rel="stylesheet"
+          href="css/style.css">
+
+</head>
+
+<body>
+
+    <div id="languageSwitcher">
+
+    <span class="lang-icon">🌐</span>
+
+    <button class="lang active" data-lang="it">IT</button>
+
+    <span>|</span>
+
+    <button class="lang" data-lang="en">EN</button>
+
+    <span>|</span>
+
+    <button class="lang" data-lang="pt">PT</button>
+
+</div>
+
+    <!-- Globo -->
+    <div id="globeViz"></div>
+
+    <!-- Pannello -->
+
+    <div id="infoPanel" class="hidden">
+
+        <button id="closePanel">
+
+            Chiudi
+
+        </button>
+
+        <h2 id="cityName"></h2>
+
+        <div id="cityCountry"></div>
+
+        <div class="city-divider"></div>
+
+        <p id="cityInfo"></p>
+
+        <div id="initiativeList"></div>
+
+    </div>
+
+    <!-- Libreria Globe -->
+
+    <script src="https://unpkg.com/globe.gl"></script>
+
+    <!-- Database -->
+
+       <!-- Data Manager -->
+
+    <script src="js/data.js"></script>
+
+    <!-- Motore -->
+
+    <script src="js/animation.js"></script>
+
+    <script src="js/panel.js"></script>
+
+    <script src="js/globe.js"></script>
+
+    <script src="js/script.js"></script>
+
+    <script src="js/language.js"></script>
+
+</body>
+
+</html>
