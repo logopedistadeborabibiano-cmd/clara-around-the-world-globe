@@ -2,7 +2,7 @@
 ======================================================
 CLARA AROUND THE WORLD
 Globe Manager
-Versione 4.1
+Versione 9.3
 ======================================================
 */
 
@@ -13,6 +13,67 @@ const GlobeManager = (() => {
     //--------------------------------------------------
 
     let world = null;
+
+    //--------------------------------------------------
+    // Versione 9.3
+    // Glow pulsante caldo
+    //--------------------------------------------------
+
+    let pulsePhase = 0;
+    let pulseInterval = null;
+
+    function warmColor(intensity) {
+
+        const from = [244, 180, 0];    // #F4B400 - ambra
+        const to   = [255, 248, 168];  // #FFF8A8 - dorato chiaro
+
+        const r = Math.round(from[0] + (to[0] - from[0]) * intensity);
+        const g = Math.round(from[1] + (to[1] - from[1]) * intensity);
+        const b = Math.round(from[2] + (to[2] - from[2]) * intensity);
+
+        return `rgb(${r},${g},${b})`;
+
+    }
+
+    function startGlowPulse() {
+
+        if (pulseInterval) return;
+
+        pulseInterval = setInterval(() => {
+
+            pulsePhase += 0.09;
+
+            const intensity = (Math.sin(pulsePhase) + 1) / 2; // oscilla 0 -> 1
+
+            world
+                .pointColor(city => {
+
+                    if (city.arrived) return "#FFF8A8";
+
+                    const base = city.active ? 0.5 : 0.1;
+
+                    return warmColor(base + intensity * 0.5);
+
+                })
+                .pointRadius(city => {
+
+                    const baseR = city.active ? 1.30 : 0.55;
+
+                    return baseR + intensity * (city.active ? 0.22 : 0.12);
+
+                });
+
+        }, 60);
+
+    }
+
+    function stopGlowPulse() {
+
+        clearInterval(pulseInterval);
+
+        pulseInterval = null;
+
+    }
 
     //--------------------------------------------------
     // Inizializzazione
@@ -70,18 +131,18 @@ const GlobeManager = (() => {
 
 //--------------------------------------------------
 // Versione 9.2
-// Rings
+// Rings - bagliore che si espande
 //--------------------------------------------------
 
-.ringsData([])
+.ringsData(initiatives)
 
-.ringColor(() => "#FFE66D")
+.ringColor(() => "#FFD98A")
 
-.ringMaxRadius(2.5)
+.ringMaxRadius(1.4)
 
-.ringPropagationSpeed(2.8)
+.ringPropagationSpeed(1.1)
 
-.ringRepeatPeriod(700);
+.ringRepeatPeriod(2200);
 
         world.width(window.innerWidth);
 world.height(window.innerHeight);
@@ -94,6 +155,8 @@ world.height(window.innerHeight);
             city.active = false;
 
         });
+
+        startGlowPulse();
 
         return world;
 
@@ -194,6 +257,26 @@ city.arrived = false;
 
     }, 1150);
 
+    //--------------------------------------------------
+    // Effetto "luce arrivata"
+    //--------------------------------------------------
+
+    setTimeout(() => {
+
+        city.arrived = true;
+
+        world.pointsData([...initiatives]);
+
+        setTimeout(() => {
+
+            city.arrived = false;
+
+            world.pointsData([...initiatives]);
+
+        }, 500);
+
+    }, 1200);
+
 }
     
 
@@ -240,26 +323,6 @@ city.arrived = false;
         world.arcsData(arcs || []);
     }
 
-    //--------------------------------------------------
-// Effetto "luce arrivata"
-//--------------------------------------------------
-
-setTimeout(() => {
-
-    city.arrived = true;
-
-    world.pointsData([...initiatives]);
-
-    setTimeout(() => {
-
-        city.arrived = false;
-
-        world.pointsData([...initiatives]);
-
-    },500);
-
-},1200);
-
     function clearConnections(){
         if(!world) return;
         world.arcsData([]);
@@ -292,7 +355,10 @@ setTimeout(() => {
         resize,
 
         showConnection,
-        clearConnections
+        clearConnections,
+
+        startGlowPulse,
+        stopGlowPulse
 
     };
 
