@@ -2,7 +2,7 @@
 ======================================================
 CLARA AROUND THE WORLD
 Globe Manager
-Versione 9.3
+Versione 10.1 - Marker "Fiammella" (HTML overlay)
 ======================================================
 */
 
@@ -15,63 +15,89 @@ const GlobeManager = (() => {
     let world = null;
 
     //--------------------------------------------------
-    // Versione 9.3
-    // Glow pulsante caldo
+    // Callback registrata da script.js
     //--------------------------------------------------
 
-    let pulsePhase = 0;
-    let pulseInterval = null;
+    let clickCallback = null;
 
-    function warmColor(intensity) {
+    // Timer per l'animazione iniziale (arco verso tutte le città)
+    let introTimer = null;
 
-        const from = [244, 180, 0];    // #F4B400 - ambra
-        const to   = [255, 248, 168];  // #FFF8A8 - dorato chiaro
+    //--------------------------------------------------
+    // Versione 10.1
+    // Crea il marker "fiammella" (elemento HTML reale)
+    //--------------------------------------------------
 
-        const r = Math.round(from[0] + (to[0] - from[0]) * intensity);
-        const g = Math.round(from[1] + (to[1] - from[1]) * intensity);
-        const b = Math.round(from[2] + (to[2] - from[2]) * intensity);
+    function createFlameMarker(city) {
 
-        return `rgb(${r},${g},${b})`;
+        const marker = document.createElement("div");
+
+        marker.className = "clara-light";
+
+        marker.innerHTML = `
+            <svg class="clara-flame" viewBox="0 0 40 40">
+                <path
+                    d="M20 8
+                       C26 14 28 20 25 27
+                       C23 31 20 33 20 33
+                       C20 33 17 31 15 27
+                       C12 20 14 14 20 8Z"
+                    fill="#FFC533"/>
+                <path
+                    d="M20 15
+                       C22 18 22 22 20 25
+                       C18 22 18 18 20 15Z"
+                    fill="#FFFDF8"/>
+            </svg>
+        `;
+
+        // Tooltip col nome della città (stile personalizzato,
+        // al passaggio del mouse - non il tooltip nativo del browser)
+
+        const tooltip = document.createElement("span");
+
+        tooltip.className = "clara-tooltip";
+        tooltip.textContent = city.city;
+
+        marker.appendChild(tooltip);
+
+        marker.setAttribute("aria-label", city.city);
+
+        marker.addEventListener("click", (e) => {
+
+            e.stopPropagation();
+
+            handleCityClick(city);
+
+        });
+
+        // Salviamo il riferimento al nodo DOM sulla città stessa,
+        // così possiamo aggiornarne lo stato (active / arrived)
+        // senza dover ridisegnare tutti i marker.
+
+        city.el = marker;
+
+        return marker;
 
     }
 
-    function startGlowPulse() {
+    //--------------------------------------------------
+    // Gestione click centralizzata
+    //--------------------------------------------------
 
-        if (pulseInterval) return;
+    function handleCityClick(city) {
 
-        pulseInterval = setInterval(() => {
+        selectCity(city);
 
-            pulsePhase += 0.09;
+        Animation.stopRotation(world);
 
-            const intensity = (Math.sin(pulsePhase) + 1) / 2; // oscilla 0 -> 1
+        focus(city);
 
-            world
-                .pointColor(city => {
+        if (typeof clickCallback === "function") {
 
-                    if (city.arrived) return "#FFF8A8";
+            clickCallback(city);
 
-                    const base = city.active ? 0.5 : 0.1;
-
-                    return warmColor(base + intensity * 0.5);
-
-                })
-                .pointRadius(city => {
-
-                    const baseR = city.active ? 1.30 : 0.55;
-
-                    return baseR + intensity * (city.active ? 0.22 : 0.12);
-
-                });
-
-        }, 60);
-
-    }
-
-    function stopGlowPulse() {
-
-        clearInterval(pulseInterval);
-
-        pulseInterval = null;
+        }
 
     }
 
@@ -93,60 +119,43 @@ const GlobeManager = (() => {
 
             .showAtmosphere(true)
 
-.atmosphereColor("#8FD3FF")
+            .atmosphereColor("#8FD3FF")
 
-.atmosphereAltitude(0.14)
-            .pointsData(initiatives)
+            .atmosphereAltitude(0.14)
 
-            .pointAltitude(0.012)
+            //--------------------------------------------------
+            // Versione 10.1 - Marker come overlay HTML
+            //--------------------------------------------------
 
-            .pointRadius(city => city.active ? 1.30 : 0.55)
+            .htmlElementsData(initiatives)
 
-            .pointResolution(64)
+            .htmlLat(d => d.lat)
 
-            .pointColor(city =>
-                city.active
-                    ? "#FFD84D"
-                    : "#F4B400"
-            )
+            .htmlLng(d => d.lng)
 
-            .pointLabel(city => city.city)
+            .htmlAltitude(0.01)
 
-//--------------------------------------------------
-// Versione 9.1
-// The Light of Clara
-//--------------------------------------------------
+            .htmlElement(createFlameMarker)
 
-.arcColor(() => "#FFF176")
+            //--------------------------------------------------
+            // Versione 9.1
+            // The Light of Clara (arco di collegamento)
+            //--------------------------------------------------
 
-.arcStroke(0.28)
+            .arcColor(() => "#FFE9A8")
 
-.arcDashLength(0.012)
+            .arcStroke(0.55)
 
-.arcDashGap(2.5)
+            .arcDashLength(0.4)
 
-.arcDashAnimateTime(1200)
+            .arcDashGap(0.15)
 
-.arcsData([])
+            .arcDashAnimateTime(1500)
 
-//--------------------------------------------------
-// Versione 9.2
-// Rings - bagliore che si espande
-//--------------------------------------------------
-
-.ringsData(initiatives)
-
-.ringColor(() => "#FFD98A")
-
-.ringMaxRadius(1.4)
-
-.ringPropagationSpeed(1.1)
-
-.ringRepeatPeriod(2200);
+            .arcsData([]);
 
         world.width(window.innerWidth);
-world.height(window.innerHeight);
-   
+        world.height(window.innerHeight);
 
         Animation.startRotation(world);
 
@@ -156,9 +165,58 @@ world.height(window.innerHeight);
 
         });
 
-        startGlowPulse();
+        // Animazione introduttiva: mostra per un breve momento
+        // un arco da Milano verso tutte le città, poi si spegne
+
+        setTimeout(() => {
+
+            playIntroArcs();
+
+        }, 1200);
 
         return world;
+
+    }
+
+    //--------------------------------------------------
+    // Animazione introduttiva - arco verso tutte le città
+    //--------------------------------------------------
+
+    function playIntroArcs() {
+
+        const milano = initiatives.find(item => item.city === "Milano");
+
+        if (!milano) return;
+
+        const introArcs = initiatives
+
+            .filter(item => item.city !== "Milano")
+
+            .map(item => ({
+
+                startLat: milano.lat,
+                startLng: milano.lng,
+                endLat: item.lat,
+                endLng: item.lng
+
+            }));
+
+        world.arcsData(introArcs);
+
+        introTimer = setTimeout(() => {
+
+            // Non spegnere se nel frattempo l'utente ha già
+            // selezionato una città (l'arco singolo prende priorità)
+
+            const alreadySelected = initiatives.some(item => item.active);
+
+            if (!alreadySelected) {
+
+                world.arcsData([]);
+
+            }
+
+        }, 3200);
 
     }
 
@@ -176,109 +234,83 @@ world.height(window.innerHeight);
     // Evidenzia una città
     //--------------------------------------------------
 
-  function selectCity(city) {
+    function selectCity(city) {
 
-    initiatives.forEach(item => {
+        initiatives.forEach(item => {
 
-        item.active = false;
+            item.active = false;
 
-    });
+            if (item.el) {
 
-    city.active = true;
-city.arrived = false;
+                item.el.classList.remove("active", "arrived");
 
-    world
-        .pointsData(initiatives)
-        .pointAltitude(0.012)
-        .pointRadius(item => item.active ? 1.30 : 0.55)
-        .pointResolution(64)
-        .pointColor(item => {
-
-    if(item.arrived){
-
-        return "#FFF8A8";
-
-    }
-
-    if(item.active){
-
-        return "#FFD84D";
-
-    }
-
-    return "#F4B400";
-
-})
-
-    //--------------------------------------------------
-    // Collegamento Milano -> città selezionata
-    //--------------------------------------------------
-
-    const milano = initiatives.find(item => item.city === "Milano");
-
-    if (!milano || city.city === "Milano") {
-
-        clearConnections();
-
-        return;
-
-    }
-
-    showConnection([
-        {
-            startLat: milano.lat,
-            startLng: milano.lng,
-            endLat: city.lat,
-            endLng: city.lng
-        }
-    ]);
-
-    //--------------------------------------------------
-    // Piccola pulsazione del punto
-    //--------------------------------------------------
-
-    setTimeout(() => {
-
-        world.pointRadius(item => {
-
-            if (item === city) return 1.75;
-
-            return item.active ? 1.30 : 0.55;
+            }
 
         });
 
+        city.active = true;
+
+        if (city.el) {
+
+            city.el.classList.add("active");
+
+        }
+
+        //--------------------------------------------------
+        // Collegamento Milano -> città selezionata
+        //--------------------------------------------------
+
+        const milano = initiatives.find(item => item.city === "Milano");
+
+        if (!milano || city.city === "Milano") {
+
+            clearTimeout(introTimer);
+
+            clearConnections();
+
+        } else {
+
+            // Se l'utente clicca durante l'animazione introduttiva,
+            // questa non deve più spegnere l'arco appena impostato
+
+            clearTimeout(introTimer);
+
+            showConnection([
+                {
+                    startLat: milano.lat,
+                    startLng: milano.lng,
+                    endLat: city.lat,
+                    endLng: city.lng
+                }
+            ]);
+
+        }
+
+        //--------------------------------------------------
+        // Effetto "luce arrivata" - breve lampo più intenso
+        //--------------------------------------------------
+
         setTimeout(() => {
 
-            world.pointRadius(item =>
-                item.active ? 1.30 : 0.55
-            );
+            if (city.el) {
 
-        }, 280);
+                city.el.classList.add("arrived");
 
-    }, 1150);
+            }
 
-    //--------------------------------------------------
-    // Effetto "luce arrivata"
-    //--------------------------------------------------
+            setTimeout(() => {
 
-    setTimeout(() => {
+                if (city.el) {
 
-        city.arrived = true;
+                    city.el.classList.remove("arrived");
 
-        world.pointsData([...initiatives]);
+                }
 
-        setTimeout(() => {
+            }, 500);
 
-            city.arrived = false;
+        }, 1200);
 
-            world.pointsData([...initiatives]);
-
-        }, 500);
-
-    }, 1200);
-
-}
-    
+    }
 
     //--------------------------------------------------
     // Focus
@@ -291,26 +323,12 @@ city.arrived = false;
     }
 
     //--------------------------------------------------
-    // Evento click
+    // Registrazione callback esterna (usata da script.js)
     //--------------------------------------------------
 
     function onCityClick(callback) {
 
-        world.onPointClick(city => {
-
-            selectCity(city);
-
-            Animation.stopRotation(world);
-
-            focus(city);
-
-            if (typeof callback === "function") {
-
-                callback(city);
-
-            }
-
-        });
+        clickCallback = callback;
 
     }
 
@@ -318,14 +336,20 @@ city.arrived = false;
     // Versione 8.5 - Gestione connessioni
     //--------------------------------------------------
 
-    function showConnection(arcs){
-        if(!world) return;
+    function showConnection(arcs) {
+
+        if (!world) return;
+
         world.arcsData(arcs || []);
+
     }
 
-    function clearConnections(){
-        if(!world) return;
+    function clearConnections() {
+
+        if (!world) return;
+
         world.arcsData([]);
+
     }
 
     //--------------------------------------------------
@@ -355,10 +379,7 @@ city.arrived = false;
         resize,
 
         showConnection,
-        clearConnections,
-
-        startGlowPulse,
-        stopGlowPulse
+        clearConnections
 
     };
 
