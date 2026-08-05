@@ -137,22 +137,21 @@ const GlobeManager = (() => {
 
             .htmlElement(createFlameMarker)
 
-            //--------------------------------------------------
-            // Versione 9.1
-            // The Light of Clara (arco di collegamento)
-            //--------------------------------------------------
+//--------------------------------------------------
+// Clara Light Trail 10.2
+//--------------------------------------------------
 
-            .arcColor(() => "#FFE9A8")
+.arcColor(() => "rgba(255,236,170,0.35)")
 
-            .arcStroke(0.55)
+.arcStroke(0.18)
 
-            .arcDashLength(0.4)
+.arcDashLength(0.10)
 
-            .arcDashGap(0.15)
+.arcDashGap(2.0)
 
-            .arcDashAnimateTime(1500)
+.arcDashAnimateTime(1200)
 
-            .arcsData([]);
+.arcsData([]);
 
         world.width(window.innerWidth);
         world.height(window.innerHeight);
