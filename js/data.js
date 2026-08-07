@@ -2,7 +2,7 @@
 ======================================================
 CLARA AROUND THE WORLD
 Data
-Versione 4.2 - Slug corretti
+Versione 5.0 - Slug multilingua (it / en / pt)
 ======================================================
 */
 const initiatives = [
@@ -15,15 +15,27 @@ const initiatives = [
         initiatives: [
             {
                 title: "La colazione di Clara",
-                slug: "la-colazione-di-clara-la-golosastra"
+                slug: {
+                    it: "la-colazione-di-clara-la-golosastra",
+                    en: "claras-breakfast",
+                    pt: "o-cafe-da-manha-da-clara"
+                }
             },
             {
                 title: "Run with Clara for Pediatria LILT",
-                slug: "run-with-clara-for-pediatria-lilt"
+                slug: {
+                    it: "run-with-clara-for-pediatria-lilt",
+                    en: "run-for-l-ilt",
+                    pt: "run-for-lilt"
+                }
             },
             {
                 title: "Un cuore per Clara",
-                slug: "un-cuore-per-clara-larte-e-la-musica-per-ricordare-clara"
+                slug: {
+                    it: "un-cuore-per-clara-larte-e-la-musica-per-ricordare-clara",
+                    en: "a-heart-for-clara-art-and-music-to-remember",
+                    pt: "um-coracao-para-clara-a-arte-e-a-musica-em-sua-memoria"
+                }
             }
         ]
     },
@@ -36,11 +48,19 @@ const initiatives = [
         initiatives: [
             {
                 title: "Camminate con Clara nel Cuore",
-                slug: "aprica-laghi-torena-domenica-6-ottobre-2024"
+                slug: {
+                    it: "aprica-laghi-torena-domenica-6-ottobre-2024",
+                    en: "aprica-torena-lakes-sunday-october-6-2024",
+                    pt: "aprica-laghi-torena-domingo-6-de-outubro-de-2024"
+                }
             },
             {
                 title: "Wild Park",
-                slug: "wild-park-di-aprica-e-caspoggio"
+                slug: {
+                    it: "wild-park-di-aprica-e-caspoggio",
+                    en: "wild-park-aprica-and-caspoggio",
+                    pt: "wild-park-aprica-e-caspoggio"
+                }
             }
         ]
     },
@@ -53,7 +73,11 @@ const initiatives = [
         initiatives: [
             {
                 title: "Ospedale Santa Marcelina",
-                slug: "hospital-santa-marcelina-primeira-iniciativa"
+                slug: {
+                    it: "hospital-santa-marcelina-primeira-iniciativa",
+                    en: "santa-marcelina-hospital-first-initiative",
+                    pt: "hospital-santa-marcelina-primeira-iniciativa-2"
+                }
             }
         ]
     },
@@ -66,7 +90,11 @@ const initiatives = [
         initiatives: [
             {
                 title: "Walk 4 Brain Tumour",
-                slug: "walk-4-brain-cancer"
+                slug: {
+                    it: "walk-4-brain-cancer",
+                    en: "walk4braincancer-2",
+                    pt: "walk4braincancer"
+                }
             }
         ]
     }
