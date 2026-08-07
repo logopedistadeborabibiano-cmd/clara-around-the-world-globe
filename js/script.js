@@ -6,7 +6,7 @@ Versione 3.0
 ======================================================
 */
 
-const SITE_URL = "https://claraaroundtheworld.com/";
+const SITE_URL = "https://www.claraaroundtheworld.com/";
 
 //--------------------------------------------------
 // Avvio applicazione
