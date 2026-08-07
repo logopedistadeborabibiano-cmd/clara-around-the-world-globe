@@ -55,12 +55,22 @@ const Panel = (() => {
 
             card.textContent = initiative.title;
 
-            card.addEventListener("click", () => {
+           card.addEventListener("click", () => {
 
-                window.location.href =
-                    SITE_URL + initiative.slug + "/";
+ 
+    let lang = "it";
 
-            });
+    const path = window.location.pathname;
+
+    if (path.startsWith("/en/")) {
+        lang = "en";
+    } else if (path.startsWith("/pt/")) {
+        lang = "pt";
+    }
+
+window.location.href = SITE_URL + initiative.url[lang].replace(/^\//, "");
+
+});
 
             initiativeList.appendChild(card);
 
@@ -76,15 +86,26 @@ const Panel = (() => {
 
     function close() {
 
-        panel.style.display = "none";
+    panel.style.display = "none";
 
-        if (typeof closeCallback === "function") {
+    //--------------------------------------------------
+    // Versione 9.0b
+    // Rimuove l'arco attivo
+    //--------------------------------------------------
 
-            closeCallback();
+    if (typeof GlobeManager !== "undefined") {
 
-        }
+        GlobeManager.clearConnections();
 
     }
+
+    if (typeof closeCallback === "function") {
+
+        closeCallback();
+
+    }
+
+}
 
     //--------------------------------------------------
     // Registrazione callback
