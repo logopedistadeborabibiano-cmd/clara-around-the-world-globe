@@ -36,6 +36,14 @@ const initiatives = [
                     en: "a-heart-for-clara-art-and-music-to-remember",
                     pt: "um-coracao-para-clara-a-arte-e-a-musica-em-sua-memoria"
                 }
+            },
+            {
+                title: "L'albero di Clara",
+                slug: {
+                    it: "lalbero-di-clara",
+                    en: "claras-tree",
+                    pt: "a-arvore-de-clara"
+                }
             }
         ]
     },
