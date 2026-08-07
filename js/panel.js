@@ -56,10 +56,16 @@ const Panel = (() => {
                     lang = "pt";
                 }
 
-                window.location.href =
-                    SITE_URL + initiative.url[lang].replace(/^\//, "");
+                console.log("SITE_URL:", SITE_URL);
+console.log("LANG:", lang);
+console.log("URL:", initiative.url[lang]);
 
-            });
+window.open(
+    SITE_URL + initiative.url[lang].replace(/^\//, ""),
+    "_blank"
+);
+
+}); 
 
             initiativeList.appendChild(card);
 
