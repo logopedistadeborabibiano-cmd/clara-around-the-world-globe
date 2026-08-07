@@ -46,25 +46,11 @@ const Panel = (() => {
 
             card.addEventListener("click", () => {
 
-                let lang = "it";
+                window.location.assign(
+                    SITE_URL + initiative.slug + "/"
+                );
 
-                const path = window.location.pathname;
-
-                if (path.startsWith("/en/")) {
-                    lang = "en";
-                } else if (path.startsWith("/pt/")) {
-                    lang = "pt";
-                }
-
-                console.log("SITE_URL:", SITE_URL);
-console.log("LANG:", lang);
-console.log("URL:", initiative.url[lang]);
-
-window.location.assign(
-    SITE_URL + initiative.url[lang].replace(/^\//, "")
-);
-
-}); 
+            });
 
             initiativeList.appendChild(card);
 
