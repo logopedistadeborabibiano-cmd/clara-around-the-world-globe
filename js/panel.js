@@ -26,28 +26,25 @@ const Panel = (() => {
     let closeCallback = null;
 
     //--------------------------------------------------
-    // Rileva la lingua della pagina che ospita il globo
-    // (guarda il path della finestra "top", non quello
-    // dell'iframe, che è sempre lo stesso dominio GitHub Pages)
+    // Rileva la lingua del globo.
+    //
+    // Versione 4.2
+    // Un iframe cross-domain NON può leggere l'URL della
+    // pagina che lo contiene (window.top.location è
+    // bloccato dal browser per sicurezza) - può solo
+    // scriverci sopra per navigare. Quindi la lingua non
+    // si "indovina" più: viene passata esplicitamente
+    // nell'URL dell'iframe stesso, come parametro
+    // ?lang=en oppure ?lang=pt (nessun parametro = it).
     //--------------------------------------------------
 
     function detectLang() {
 
-        let path = "";
+        const params = new URLSearchParams(window.location.search);
 
-        try {
+        const lang = params.get("lang");
 
-            path = window.top.location.pathname;
-
-        } catch (e) {
-
-            path = window.location.pathname;
-
-        }
-
-        if (path.startsWith("/en/")) return "en";
-
-        if (path.startsWith("/pt/")) return "pt";
+        if (lang === "en" || lang === "pt") return lang;
 
         return "it";
 
@@ -182,4 +179,3 @@ const Panel = (() => {
     };
 
 })();
-
