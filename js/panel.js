@@ -1,4 +1,9 @@
 /*
+======================================================
+CLARA AROUND THE WORLD
+Panel Manager
+Versione 4.0 - Link multilingua con fallback su IT
+======================================================
 */
 
 const Panel = (() => {
@@ -21,6 +26,71 @@ const Panel = (() => {
     let closeCallback = null;
 
     //--------------------------------------------------
+    // Rileva la lingua della pagina che ospita il globo
+    // (guarda il path della finestra "top", non quello
+    // dell'iframe, che è sempre lo stesso dominio GitHub Pages)
+    //--------------------------------------------------
+
+    function detectLang() {
+
+        let path = "";
+
+        try {
+
+            path = window.top.location.pathname;
+
+        } catch (e) {
+
+            path = window.location.pathname;
+
+        }
+
+        if (path.startsWith("/en/")) return "en";
+
+        if (path.startsWith("/pt/")) return "pt";
+
+        return "it";
+
+    }
+
+    //--------------------------------------------------
+    // Scelta dello slug in base alla lingua, con fallback
+    // automatico sull'italiano se quella lingua non è
+    // ancora stata compilata (valore null).
+    //
+    // Versione 4.1
+    // Restituisce anche il prefisso di lingua corretto da
+    // usare nell'URL: l'italiano non ha prefisso, inglese
+    // e portoghese lo richiedono (/en/ e /pt/). Se si fa
+    // fallback sull'italiano, va usato anche il prefisso
+    // italiano (nessuno), non quello della lingua richiesta.
+    //--------------------------------------------------
+
+    function resolveLangAndSlug(initiative) {
+
+        const lang = detectLang();
+
+        const slugObj = initiative.slug;
+
+        if (slugObj[lang]) {
+
+            return { lang: lang, slug: slugObj[lang] };
+
+        }
+
+        return { lang: "it", slug: slugObj.it };
+
+    }
+
+    function langPrefix(lang) {
+
+        if (lang === "it") return "";
+
+        return lang + "/";
+
+    }
+
+    //--------------------------------------------------
     // Mostra pannello
     //--------------------------------------------------
 
@@ -39,10 +109,9 @@ const Panel = (() => {
         city.initiatives.forEach(initiative => {
 
             //--------------------------------------------------
-            // Versione 3.1
-            // Link vero con target="_top" invece di div + JS,
-            // per bypassare i blocchi dei browser sulla
-            // navigazione cross-domain iframe -> pagina padre
+            // Link vero con target="_top", per bypassare i
+            // blocchi dei browser sulla navigazione
+            // cross-domain iframe -> pagina padre
             //--------------------------------------------------
 
             const card = document.createElement("a");
@@ -51,7 +120,10 @@ const Panel = (() => {
 
             card.textContent = initiative.title;
 
-            card.href = SITE_URL + initiative.slug + "/";
+            const resolved = resolveLangAndSlug(initiative);
+
+            card.href =
+                SITE_URL + langPrefix(resolved.lang) + resolved.slug + "/";
 
             card.target = "_top";
 
@@ -72,7 +144,6 @@ const Panel = (() => {
         panel.style.display = "none";
 
         //--------------------------------------------------
-        // Versione 9.0b
         // Rimuove l'arco attivo
         //--------------------------------------------------
 
@@ -111,3 +182,4 @@ const Panel = (() => {
     };
 
 })();
+
