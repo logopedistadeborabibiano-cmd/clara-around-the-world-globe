@@ -1,113 +1,73 @@
 /*
+======================================================
+CLARA AROUND THE WORLD
+Data
+Versione 4.2 - Slug corretti
+======================================================
 */
-
-const Panel = (() => {
-
-    //--------------------------------------------------
-    // Elementi HTML
-    //--------------------------------------------------
-
-    const panel = document.getElementById("infoPanel");
-    const cityName = document.getElementById("cityName");
-    const cityCountry = document.getElementById("cityCountry");
-    const cityInfo = document.getElementById("cityInfo");
-    const initiativeList = document.getElementById("initiativeList");
-    const closeButton = document.getElementById("closePanel");
-
-    //--------------------------------------------------
-    // Callback eseguita alla chiusura
-    //--------------------------------------------------
-
-    let closeCallback = null;
-
-    //--------------------------------------------------
-    // Mostra pannello
-    //--------------------------------------------------
-
-    function open(city) {
-
-        cityName.textContent = city.city;
-        cityCountry.textContent = city.country;
-
-        const total = city.initiatives.length;
-
-        cityInfo.textContent =
-            total + (total === 1 ? " iniziativa" : " iniziative");
-
-        initiativeList.innerHTML = "";
-
-        city.initiatives.forEach(initiative => {
-
-            //--------------------------------------------------
-            // Versione 3.1
-            // Link vero con target="_top" invece di div + JS,
-            // per bypassare i blocchi dei browser sulla
-            // navigazione cross-domain iframe -> pagina padre
-            //--------------------------------------------------
-
-            const card = document.createElement("a");
-
-            card.className = "initiative-card";
-
-            card.textContent = initiative.title;
-
-            card.href = SITE_URL + initiative.slug + "/";
-
-            card.target = "_top";
-
-            initiativeList.appendChild(card);
-
-        });
-
-        panel.style.display = "block";
-
+const initiatives = [
+    {
+        city: "Milano",
+        country: "Italia",
+        lat: 45.4642,
+        lng: 9.1900,
+        active: false,
+        initiatives: [
+            {
+                title: "La colazione di Clara",
+                slug: "la-colazione-di-clara-la-golosastra"
+            },
+            {
+                title: "Run with Clara for Pediatria LILT",
+                slug: "run-with-clara-for-pediatria-lilt"
+            },
+            {
+                title: "Un cuore per Clara",
+                slug: "un-cuore-per-clara-larte-e-la-musica-per-ricordare-clara"
+            }
+        ]
+    },
+    {
+        city: "Aprica",
+        country: "Italia",
+        lat: 46.1528,
+        lng: 10.1519,
+        active: false,
+        initiatives: [
+            {
+                title: "Camminate con Clara nel Cuore",
+                slug: "aprica-laghi-torena-domenica-6-ottobre-2024"
+            },
+            {
+                title: "Wild Park",
+                slug: "wild-park-di-aprica-e-caspoggio"
+            }
+        ]
+    },
+    {
+        city: "São Paulo",
+        country: "Brasile",
+        lat: -23.5505,
+        lng: -46.6333,
+        active: false,
+        initiatives: [
+            {
+                title: "Ospedale Santa Marcelina",
+                slug: "hospital-santa-marcelina-primeira-iniciativa"
+            }
+        ]
+    },
+    {
+        city: "Melbourne",
+        country: "Australia",
+        lat: -37.8136,
+        lng: 144.9631,
+        active: false,
+        initiatives: [
+            {
+                title: "Walk 4 Brain Tumour",
+                slug: "walk-4-brain-cancer"
+            }
+        ]
     }
-
-    //--------------------------------------------------
-    // Nasconde pannello
-    //--------------------------------------------------
-
-    function close() {
-
-        panel.style.display = "none";
-
-        //--------------------------------------------------
-        // Versione 9.0b
-        // Rimuove l'arco attivo
-        //--------------------------------------------------
-
-        if (typeof GlobeManager !== "undefined") {
-            GlobeManager.clearConnections();
-        }
-
-        if (typeof closeCallback === "function") {
-            closeCallback();
-        }
-
-    }
-
-    //--------------------------------------------------
-    // Registrazione callback
-    //--------------------------------------------------
-
-    function onClose(callback) {
-        closeCallback = callback;
-    }
-
-    //--------------------------------------------------
-    // Chiusura con pulsante
-    //--------------------------------------------------
-
-    closeButton.addEventListener("click", close);
-
-    //--------------------------------------------------
-    // API pubblica
-    //--------------------------------------------------
-
-    return {
-        open,
-        close,
-        onClose
-    };
-
-})();
+];
