@@ -36,7 +36,7 @@ const initiatives = [
         initiatives: [
             {
                 title: "Camminate con Clara nel Cuore",
-                slug: "aprica-laghi-torena-domenica-5-ottobre-2025"
+                slug: "aprica-laghi-torena-domenica-6-ottobre-2024"
             },
             {
                 title: "Wild Park",
