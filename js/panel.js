@@ -38,18 +38,22 @@ const Panel = (() => {
 
         city.initiatives.forEach(initiative => {
 
-            const card = document.createElement("div");
+            //--------------------------------------------------
+            // Versione 3.1
+            // Link vero con target="_top" invece di div + JS,
+            // per bypassare i blocchi dei browser sulla
+            // navigazione cross-domain iframe -> pagina padre
+            //--------------------------------------------------
+
+            const card = document.createElement("a");
 
             card.className = "initiative-card";
 
             card.textContent = initiative.title;
 
-            card.addEventListener("click", () => {
+            card.href = SITE_URL + initiative.slug + "/";
 
-            window.top.location.assign(
-    SITE_URL + initiative.slug + "/"
-);
-            });
+            card.target = "_top";
 
             initiativeList.appendChild(card);
 
