@@ -68,7 +68,7 @@ const Panel = (() => {
         lang = "pt";
     }
 
-window.location.href = SITE_URL + initiative.url[lang].replace(/^\//, "");
+alert(initiative.url[lang]);
 
 });
 
