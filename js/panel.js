@@ -60,9 +60,8 @@ const Panel = (() => {
 console.log("LANG:", lang);
 console.log("URL:", initiative.url[lang]);
 
-window.open(
-    SITE_URL + initiative.url[lang].replace(/^\//, ""),
-    "_blank"
+window.location.assign(
+    SITE_URL + initiative.url[lang].replace(/^\//, "")
 );
 
 }); 
