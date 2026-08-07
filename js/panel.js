@@ -46,10 +46,9 @@ const Panel = (() => {
 
             card.addEventListener("click", () => {
 
-                window.location.assign(
-                    SITE_URL + initiative.slug + "/"
-                );
-
+            window.top.location.assign(
+    SITE_URL + initiative.slug + "/"
+);
             });
 
             initiativeList.appendChild(card);
