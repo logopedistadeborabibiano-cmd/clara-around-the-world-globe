@@ -1,9 +1,4 @@
 /*
-======================================================
-CLARA AROUND THE WORLD
-Panel Manager
-Versione 3.0
-======================================================
 */
 
 const Panel = (() => {
@@ -13,15 +8,10 @@ const Panel = (() => {
     //--------------------------------------------------
 
     const panel = document.getElementById("infoPanel");
-
-    const cityName = document.getElementById("cityName"); 
-
+    const cityName = document.getElementById("cityName");
     const cityCountry = document.getElementById("cityCountry");
-
     const cityInfo = document.getElementById("cityInfo");
-
     const initiativeList = document.getElementById("initiativeList");
-
     const closeButton = document.getElementById("closePanel");
 
     //--------------------------------------------------
@@ -37,7 +27,6 @@ const Panel = (() => {
     function open(city) {
 
         cityName.textContent = city.city;
-
         cityCountry.textContent = city.country;
 
         const total = city.initiatives.length;
@@ -55,22 +44,22 @@ const Panel = (() => {
 
             card.textContent = initiative.title;
 
-           card.addEventListener("click", () => {
+            card.addEventListener("click", () => {
 
- 
-    let lang = "it";
+                let lang = "it";
 
-    const path = window.location.pathname;
+                const path = window.location.pathname;
 
-    if (path.startsWith("/en/")) {
-        lang = "en";
-    } else if (path.startsWith("/pt/")) {
-        lang = "pt";
-    }
+                if (path.startsWith("/en/")) {
+                    lang = "en";
+                } else if (path.startsWith("/pt/")) {
+                    lang = "pt";
+                }
 
-alert(initiative.url[lang]);
+                window.location.href =
+                    SITE_URL + initiative.url[lang].replace(/^\//, "");
 
-});
+            });
 
             initiativeList.appendChild(card);
 
@@ -86,35 +75,29 @@ alert(initiative.url[lang]);
 
     function close() {
 
-    panel.style.display = "none";
+        panel.style.display = "none";
 
-    //--------------------------------------------------
-    // Versione 9.0b
-    // Rimuove l'arco attivo
-    //--------------------------------------------------
+        //--------------------------------------------------
+        // Versione 9.0b
+        // Rimuove l'arco attivo
+        //--------------------------------------------------
 
-    if (typeof GlobeManager !== "undefined") {
+        if (typeof GlobeManager !== "undefined") {
+            GlobeManager.clearConnections();
+        }
 
-        GlobeManager.clearConnections();
-
-    }
-
-    if (typeof closeCallback === "function") {
-
-        closeCallback();
+        if (typeof closeCallback === "function") {
+            closeCallback();
+        }
 
     }
-
-}
 
     //--------------------------------------------------
     // Registrazione callback
     //--------------------------------------------------
 
     function onClose(callback) {
-
         closeCallback = callback;
-
     }
 
     //--------------------------------------------------
@@ -128,11 +111,9 @@ alert(initiative.url[lang]);
     //--------------------------------------------------
 
     return {
-
         open,
         close,
         onClose
-
     };
 
 })();
