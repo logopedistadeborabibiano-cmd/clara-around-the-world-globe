@@ -9,7 +9,7 @@ Versione 3.0
 const Animation = (() => {
 
     // Velocità standard del globo
-    const DEFAULT_ROTATION_SPEED = 0.35;
+    const DEFAULT_ROTATION_SPEED = 0.25;
 
     // Timer interno
     let resumeTimer = null;
