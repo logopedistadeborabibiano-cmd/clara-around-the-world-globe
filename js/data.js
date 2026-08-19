@@ -2,108 +2,77 @@
 ======================================================
 CLARA AROUND THE WORLD
 Data
-Versione 5.0 - Slug multilingua (it / en / pt)
+Versione 6.0 - Caricamento da Google Sheets
 ======================================================
 */
-const initiatives = [
-    {
-        city: "Milano",
-        country: "Italia",
-        lat: 45.4642,
-        lng: 9.1900,
-        active: false,
-        initiatives: [
-            {
-                title: "La colazione di Clara",
-                slug: {
-                    it: "la-colazione-di-clara-la-golosastra",
-                    en: "claras-breakfast",
-                    pt: "o-cafe-da-manha-da-clara"
-                }
-            },
-            {
-                title: "Run with Clara for Pediatria LILT",
-                slug: {
-                    it: "run-with-clara-for-pediatria-lilt",
-                    en: "run-for-l-ilt",
-                    pt: "run-for-lilt"
-                }
-            },
-            {
-                title: "Un cuore per Clara",
-                slug: {
-                    it: "un-cuore-per-clara-larte-e-la-musica-per-ricordare-clara",
-                    en: "a-heart-for-clara-art-and-music-to-remember",
-                    pt: "um-coracao-para-clara-a-arte-e-a-musica-em-sua-memoria"
-                }
-            },
-            {
-                title: "L'albero di Clara",
-                slug: {
-                    it: "lalbero-di-clara",
-                    en: "claras-tree",
-                    pt: "a-arvore-de-clara"
-                }
+
+const CITTA_CSV = "https://docs.google.com/spreadsheets/d/1HjgM5w4hQO1trNQaNwuKppIAc_yZBnWd/gviz/tq?tqx=out:csv&gid=1800383631";
+const INIZIATIVE_CSV = "https://docs.google.com/spreadsheets/d/1HjgM5w4hQO1trNQaNwuKppIAc_yZBnWd/gviz/tq?tqx=out:csv&gid=767627493";
+// Parser CSV minimale, gestisce anche eventuali virgole dentro virgolette
+function parseCSV(text) {
+    const rows = text.trim().split(/\r?\n/).map(line => {
+        const cells = [];
+        let cur = "", inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+            const c = line[i];
+            if (c === '"') { inQuotes = !inQuotes; continue; }
+            if (c === ',' && !inQuotes) { cells.push(cur); cur = ""; continue; }
+            cur += c;
+        }
+        cells.push(cur);
+        return cells;
+    });
+    const headers = rows[0].map(h => h.trim());
+    return rows.slice(1).map(r => {
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = (r[i] || "").trim());
+        return obj;
+    });
+}
+
+// Carica Città + Iniziative e le unisce tramite CityID
+async function loadInitiatives() {
+
+    const [cittaRes, iniziativeRes] = await Promise.all([
+        fetch(CITTA_CSV),
+        fetch(INIZIATIVE_CSV)
+    ]);
+
+    const cittaRows = parseCSV(await cittaRes.text());
+    const iniziativeRows = parseCSV(await iniziativeRes.text());
+
+    const cityMap = {};
+    cittaRows.forEach(row => {
+        cityMap[row.ID] = {
+            city: row["Città"],
+            country: row["Paese IT"],
+            lat: parseFloat(row.Latitudine),
+            lng: parseFloat(row.Longitudine),
+            active: (row.Attiva || "").toUpperCase() === "SI",
+            initiatives: []
+        };
+    });
+
+    iniziativeRows.forEach(row => {
+        const city = cityMap[row.CityID];
+        if (!city) return;
+        city.initiatives.push({
+            title: row.Nome,
+            slug: {
+                it: row.Slug || null,
+                en: row["Slug.EN"] || null,
+                pt: row["Slug-PT"] || null
             }
-        ]
-    },
-    {
-        city: "Aprica",
-        country: "Italia",
-        lat: 46.1528,
-        lng: 10.1519,
-        active: false,
-        initiatives: [
-            {
-                title: "Camminate con Clara nel Cuore",
-                slug: {
-                    it: "aprica-laghi-torena-domenica-6-ottobre-2024",
-                    en: "aprica-torena-lakes-sunday-october-6-2024",
-                    pt: "aprica-laghi-torena-domingo-6-de-outubro-de-2024"
-                }
-            },
-            {
-                title: "Wild Park",
-                slug: {
-                    it: "wild-park-di-aprica-e-caspoggio",
-                    en: "wild-park-aprica-and-caspoggio",
-                    pt: "wild-park-aprica-e-caspoggio"
-                }
-            }
-        ]
-    },
-    {
-        city: "São Paulo",
-        country: "Brasile",
-        lat: -23.5505,
-        lng: -46.6333,
-        active: false,
-        initiatives: [
-            {
-                title: "Ospedale Santa Marcelina",
-                slug: {
-                    it: "hospital-santa-marcelina-primeira-iniciativa",
-                    en: "santa-marcelina-hospital-first-initiative",
-                    pt: "hospital-santa-marcelina-primeira-iniciativa-2"
-                }
-            }
-        ]
-    },
-    {
-        city: "Melbourne",
-        country: "Australia",
-        lat: -37.8136,
-        lng: 144.9631,
-        active: false,
-        initiatives: [
-            {
-                title: "Walk 4 Brain Tumour",
-                slug: {
-                    it: "walk-4-brain-cancer",
-                    en: "walk4braincancer-2",
-                    pt: "walk4braincancer"
-                }
-            }
-        ]
-    }
-];
+        });
+    });
+
+    return Object.values(cityMap);
+}
+
+// Variabile globale che il resto del codice (globe.js) si aspetta già pronta
+let initiatives = [];
+
+// Da chiamare prima di GlobeManager.init() - vedi script.js
+async function initData() {
+    initiatives = await loadInitiatives();
+}
