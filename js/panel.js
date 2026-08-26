@@ -2,7 +2,8 @@
 ======================================================
 CLARA AROUND THE WORLD
 Panel Manager
-Versione 4.0 - Link multilingua con fallback su IT
+Versione 4.1 - Link multilingua con fallback su IT,
+                testo "iniziativa/e" tradotto
 ======================================================
 */
 
@@ -49,6 +50,16 @@ const Panel = (() => {
         return "it";
 
     }
+
+    //--------------------------------------------------
+    // Etichetta "iniziativa/iniziative" tradotta
+    //--------------------------------------------------
+
+    const initiativeLabels = {
+        it: { one: "iniziativa", other: "iniziative" },
+        en: { one: "initiative", other: "initiatives" },
+        pt: { one: "iniciativa", other: "iniciativas" }
+    };
 
     //--------------------------------------------------
     // Scelta dello slug in base alla lingua, con fallback
@@ -98,8 +109,10 @@ const Panel = (() => {
 
         const total = city.initiatives.length;
 
-        cityInfo.textContent =
-            total + (total === 1 ? " iniziativa" : " iniziative");
+        const lang = detectLang();
+        const label = initiativeLabels[lang][total === 1 ? "one" : "other"];
+
+        cityInfo.textContent = total + " " + label;
 
         initiativeList.innerHTML = "";
 
