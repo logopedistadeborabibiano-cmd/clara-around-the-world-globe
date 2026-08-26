@@ -2,12 +2,32 @@
 ======================================================
 CLARA AROUND THE WORLD
 Data
-Versione 6.0 - Caricamento da Google Sheets
+Versione 6.2 - Città, paese e nome iniziativa multilingua
 ======================================================
 */
 
 const CITTA_CSV = "https://docs.google.com/spreadsheets/d/1HjgM5w4hQO1trNQaNwuKppIAc_yZBnWd/gviz/tq?tqx=out:csv&gid=1800383631";
 const INIZIATIVE_CSV = "https://docs.google.com/spreadsheets/d/1HjgM5w4hQO1trNQaNwuKppIAc_yZBnWd/gviz/tq?tqx=out:csv&gid=767627493";
+
+// Lingua del globo (stesso meccanismo usato da panel.js e language.js:
+// parametro ?lang=en / ?lang=pt nell'URL dell'iframe, default italiano)
+function detectDataLang() {
+    const params = new URLSearchParams(window.location.search);
+    const lang = params.get("lang");
+    if (lang === "en" || lang === "pt") return lang;
+    return "it";
+}
+
+// Sceglie il testo nella lingua corretta, con fallback
+// automatico sull'italiano se la traduzione manca
+function pickByLang(row, lang, baseField, enField, ptField) {
+    return (
+        (lang === "en" && row[enField]) ||
+        (lang === "pt" && row[ptField]) ||
+        row[baseField]
+    );
+}
+
 // Parser CSV minimale, gestisce anche eventuali virgole dentro virgolette
 function parseCSV(text) {
     const rows = text.trim().split(/\r?\n/).map(line => {
@@ -33,6 +53,8 @@ function parseCSV(text) {
 // Carica Città + Iniziative e le unisce tramite CityID
 async function loadInitiatives() {
 
+    const lang = detectDataLang();
+
     const [cittaRes, iniziativeRes] = await Promise.all([
         fetch(CITTA_CSV),
         fetch(INIZIATIVE_CSV)
@@ -43,9 +65,13 @@ async function loadInitiatives() {
 
     const cityMap = {};
     cittaRows.forEach(row => {
+
+        const cityName = pickByLang(row, lang, "Città IT", "Città EN", "Città PT");
+        const country = pickByLang(row, lang, "Paese IT", "Paese EN", "Paese PT");
+
         cityMap[row.ID] = {
-            city: row["Città"],
-            country: row["Paese IT"],
+            city: cityName,
+            country: country,
             lat: parseFloat(row.Latitudine),
             lng: parseFloat(row.Longitudine),
             active: (row.Attiva || "").toUpperCase() === "SI",
@@ -56,8 +82,11 @@ async function loadInitiatives() {
     iniziativeRows.forEach(row => {
         const city = cityMap[row.CityID];
         if (!city) return;
+
+        const title = pickByLang(row, lang, "Nome", "Nome EN", "Nome PT");
+
         city.initiatives.push({
-            title: row.Nome,
+            title: title,
             slug: {
                 it: row.Slug || null,
                 en: row["Slug.EN"] || null,
