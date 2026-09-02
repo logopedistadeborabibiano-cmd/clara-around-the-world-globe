@@ -2,10 +2,9 @@
 ======================================================
 CLARA AROUND THE WORLD
 Data
-Versione 6.2 - Città, paese e nome iniziativa multilingua
+Versione 6.3 - Fix parsing coordinate con virgola decimale
 ======================================================
 */
-
 const CITTA_CSV = "https://docs.google.com/spreadsheets/d/1HjgM5w4hQO1trNQaNwuKppIAc_yZBnWd/gviz/tq?tqx=out:csv&gid=1800383631";
 const INIZIATIVE_CSV = "https://docs.google.com/spreadsheets/d/1HjgM5w4hQO1trNQaNwuKppIAc_yZBnWd/gviz/tq?tqx=out:csv&gid=767627493";
 
@@ -26,6 +25,15 @@ function pickByLang(row, lang, baseField, enField, ptField) {
         (lang === "pt" && row[ptField]) ||
         row[baseField]
     );
+}
+
+// Converte una coordinata scritta con la virgola come separatore
+// decimale (es. "46,40") in un numero valido per JavaScript (46.4).
+// Senza questa conversione, parseFloat("46,40") restituirebbe
+// semplicemente 46, arrotondando e causando sovrapposizioni tra
+// città vicine (es. Aprica e Santa Caterina Valfurva).
+function parseCoordinate(value) {
+    return parseFloat(String(value).trim().replace(",", "."));
 }
 
 // Parser CSV minimale, gestisce anche eventuali virgole dentro virgolette
@@ -52,39 +60,30 @@ function parseCSV(text) {
 
 // Carica Città + Iniziative e le unisce tramite CityID
 async function loadInitiatives() {
-
     const lang = detectDataLang();
-
     const [cittaRes, iniziativeRes] = await Promise.all([
         fetch(CITTA_CSV),
         fetch(INIZIATIVE_CSV)
     ]);
-
     const cittaRows = parseCSV(await cittaRes.text());
     const iniziativeRows = parseCSV(await iniziativeRes.text());
-
     const cityMap = {};
     cittaRows.forEach(row => {
-
         const cityName = pickByLang(row, lang, "Città IT", "Città EN", "Città PT");
         const country = pickByLang(row, lang, "Paese IT", "Paese EN", "Paese PT");
-
         cityMap[row.ID] = {
             city: cityName,
             country: country,
-            lat: parseFloat(row.Latitudine),
-            lng: parseFloat(row.Longitudine),
+            lat: parseCoordinate(row.Latitudine),
+            lng: parseCoordinate(row.Longitudine),
             active: (row.Attiva || "").toUpperCase() === "SI",
             initiatives: []
         };
     });
-
     iniziativeRows.forEach(row => {
         const city = cityMap[row.CityID];
         if (!city) return;
-
         const title = pickByLang(row, lang, "Nome", "Nome EN", "Nome PT");
-
         city.initiatives.push({
             title: title,
             slug: {
@@ -94,7 +93,6 @@ async function loadInitiatives() {
             }
         });
     });
-
     return Object.values(cityMap);
 }
 
