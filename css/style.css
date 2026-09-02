@@ -435,3 +435,39 @@ Versione 10.1 - Fiammella con flicker + area click fissa
     }
 
 }
+/* ==========================
+   Alone di contrasto dietro la fiammella
+   (migliora la visibilità su sfondi chiari: neve, sabbia, terreno chiaro)
+========================== */
+
+.clara-light::before{
+
+    content:"";
+
+    position:absolute;
+
+    top:50%;
+    left:50%;
+
+    width:28px;
+    height:28px;
+
+    transform:translate(-50%, -50%);
+
+    border-radius:50%;
+
+    background:radial-gradient(circle, rgba(0,0,0,.5) 0%, rgba(0,0,0,.2) 55%, rgba(0,0,0,0) 100%);
+
+    z-index:0;
+
+    pointer-events:none;
+
+}
+
+.clara-flame{
+
+    position:relative;
+
+    z-index:1;
+
+}
